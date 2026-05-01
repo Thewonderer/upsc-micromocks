@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+.DS_Store
+data/cache.db
+*.db-wal
+*.db-shm
+questions-inbox/processed

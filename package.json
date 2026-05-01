@@ -1,0 +1,40 @@
+{
+  "name": "upsc-mock-test",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "import": "npx tsx scripts/import-questions.ts",
+    "generate": "npx tsx scripts/generate-questions.ts",
+    "generate:week": "npx tsx scripts/generate-questions.ts last_week 5",
+    "generate:month": "npx tsx scripts/generate-questions.ts last_month 5",
+    "generate:year": "npx tsx scripts/generate-questions.ts last_year 5"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
+    "better-sqlite3": "^12.9.0",
+    "date-fns": "^4.1.0",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "rss-parser": "^3.13.0",
+    "uuid": "^14.0.0",
+    "zod": "^4.4.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}

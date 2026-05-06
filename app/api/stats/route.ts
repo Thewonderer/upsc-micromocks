@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
   const recent = db
     .prepare(
-      "SELECT ip, tests_taken, last_test_at FROM guest_usage ORDER BY last_test_at DESC LIMIT 20"
+      "SELECT ip, period, tests_taken, last_test_at FROM guest_usage ORDER BY last_test_at DESC LIMIT 20"
     )
     .all();
 

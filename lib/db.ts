@@ -34,6 +34,14 @@ export function getDb(): Database.Database {
   db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
 
+  // Migrate old guest_usage table (ip-only PK) to new schema (ip+period PK)
+  const tableInfo = db
+    .prepare(`PRAGMA table_info(guest_usage)`)
+    .all() as { name: string }[];
+  if (tableInfo.length > 0 && !tableInfo.some((col) => col.name === "period")) {
+    db.exec(`DROP TABLE guest_usage`);
+  }
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS questions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,9 +71,11 @@ export function getDb(): Database.Database {
     );
 
     CREATE TABLE IF NOT EXISTS guest_usage (
-      ip TEXT PRIMARY KEY,
+      ip TEXT NOT NULL,
+      period TEXT NOT NULL,
       tests_taken INTEGER NOT NULL DEFAULT 0,
-      last_test_at TEXT NOT NULL
+      last_test_at TEXT NOT NULL,
+      PRIMARY KEY (ip, period)
     );
   `);
 
@@ -270,20 +280,20 @@ export function getQuestionCount(period?: TimePeriod): number {
   return row.count;
 }
 
-export function checkGuestUsage(ip: string): number {
+export function checkGuestUsage(ip: string, period: string): number {
   const database = getDb();
   const row = database
-    .prepare(`SELECT tests_taken FROM guest_usage WHERE ip = ?`)
-    .get(ip) as { tests_taken: number } | undefined;
+    .prepare(`SELECT tests_taken FROM guest_usage WHERE ip = ? AND period = ?`)
+    .get(ip, period) as { tests_taken: number } | undefined;
   return row?.tests_taken || 0;
 }
 
-export function recordGuestUsage(ip: string): void {
+export function recordGuestUsage(ip: string, period: string): void {
   const database = getDb();
   database
     .prepare(
-      `INSERT INTO guest_usage (ip, tests_taken, last_test_at) VALUES (?, 1, ?)
-       ON CONFLICT(ip) DO UPDATE SET tests_taken = tests_taken + 1, last_test_at = ?`
+      `INSERT INTO guest_usage (ip, period, tests_taken, last_test_at) VALUES (?, ?, 1, ?)
+       ON CONFLICT(ip, period) DO UPDATE SET tests_taken = tests_taken + 1, last_test_at = ?`
     )
-    .run(ip, new Date().toISOString(), new Date().toISOString());
+    .run(ip, period, new Date().toISOString(), new Date().toISOString());
 }

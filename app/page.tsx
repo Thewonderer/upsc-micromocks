@@ -26,7 +26,7 @@ export default function Home() {
       if (!res.ok) {
         const data = await res.json();
         if (data.error === "free_limit_reached") {
-          setError("You've used your free test! Sign up to unlock more tests.");
+          setError("You've used all 10 free tests for this period. Try a different time period or sign up for more!");
           return;
         }
         if (data.error === "no_questions") {

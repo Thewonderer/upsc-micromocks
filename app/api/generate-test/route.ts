@@ -10,7 +10,7 @@ import {
 } from "@/lib/db";
 import { headers } from "next/headers";
 
-const GUEST_LIMIT = 3;
+const GUEST_LIMIT = 10;
 
 export async function POST(request: Request) {
   try {
@@ -30,13 +30,12 @@ export async function POST(request: Request) {
       headersList.get("x-real-ip") ||
       "unknown";
 
-    const usage = checkGuestUsage(ip);
+    const usage = checkGuestUsage(ip, period);
     if (usage >= GUEST_LIMIT) {
       return NextResponse.json(
         {
           error: "free_limit_reached",
-          message:
-            "You have used all 3 free tests. Sign up for more access!",
+          message: `You have used all ${GUEST_LIMIT} free tests for this period. Try a different time period or sign up for more access!`,
         },
         { status: 403 }
       );
@@ -72,7 +71,7 @@ export async function POST(request: Request) {
       questions.map((q) => q.id)
     );
 
-    recordGuestUsage(ip);
+    recordGuestUsage(ip, period);
 
     return NextResponse.json({
       testId,
